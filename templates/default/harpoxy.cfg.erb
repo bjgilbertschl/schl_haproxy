@@ -1,0 +1,44 @@
+global
+        log 127.0.0.1   local0
+        log 127.0.0.1   local1 notice
+        #log loghost    local0 info
+        maxconn 4096
+        #debug
+        #quiet
+        user haproxy
+        group haproxy
+
+defaults
+        log     global
+        mode    http
+        option  httplog
+        option  dontlognull
+        retries 3
+        option  redispatch
+        maxconn 2000
+        contimeout      5000
+        clitimeout      50000
+        srvtimeout      50000
+        option   httpclose
+        balance  leastconn  #loadbalanced based on connection load + roundrobin if =
+        option   forwardfor #Insert x-forwarded-for header
+
+frontend schl *:80
+  acl schla path_beg  /schl-app-1-test/
+  acl schlb path_beg /schl-app-2-test/
+
+ use_backend schl1 if schla
+ use_backend schl2 if schlb
+default_backend schl1
+
+backend schl1 :80
+   option httpchk /schl-app-1-test #health check
+   <% @webapp1.each do |n| %>
+    server <%= n[1] %> <%= n[0]%>:80 weight 1 maxconn 5 check
+<% end %>
+
+backend schl2 :80
+    option httpchk /schl-app-2-test #health check 
+    <% @webapp2.each do |n| %>
+    server <%= n[1] %> <%= n[0]%>:80 weight 1 maxconn 5 check
+<% end %>
