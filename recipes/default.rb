@@ -2,7 +2,7 @@
 # Cookbook Name:: schl_haproxy
 # Recipe:: default
 #
-# Copyright (C) 2013 YOUR_NAME
+# Copyright (C) 2013 Ben Gilbert
 # 
 # All rights reserved - Do Not Redistribute
 #
